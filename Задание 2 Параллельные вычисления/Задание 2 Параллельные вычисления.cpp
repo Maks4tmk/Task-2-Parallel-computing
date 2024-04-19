@@ -20,18 +20,22 @@ int main()
 	std::cout << "\t\t1'000" << "\t        10'000" << "\t       100'000" << "\t     1'000'000" << "\n";
 	std::cout << "-------------------------------------------------------------------------" << std::endl;
 
-	std::vector<int> Threads{1,2,4,8,16};
-	std::vector<int> Size_v{ 1000,10'000,100'000,1000'000 };
+	std::vector<int> Threads{1, 2, 4, 8, 16};
+	std::vector<int> Size_v{1'000, 10'000, 100'000, 1'000'000};
 
 	std::vector<int> v1;
 	std::vector<int> v2;
 
-	for(auto c_Thread : Threads){
+	for(auto& c_Thread : Threads) {
+
 		std::cout << c_Thread << " потоков ";
-		for (auto c_Vector : Size_v) {
-			v1.resize(c_Vector, 1);
-			v2.resize(c_Vector, 2);
-			int size_Threads = c_Vector / c_Thread;
+
+		for (auto& c_Vector : Size_v) {
+
+			v1.resize(c_Vector, 2);
+			v2.resize(c_Vector, 1);
+
+			int size_Threads = static_cast<int> (c_Vector / c_Thread);
 			std::vector<std::thread> th;
 
 			auto start = std::chrono::high_resolution_clock::now();
@@ -40,7 +44,8 @@ int main()
 				std::vector<int>n_v1;
 				std::vector<int>n_v2;
 				int r_bord = 0;
-				if (i != (c_Thread - 1)) {
+
+				if (i != c_Thread - 1) {
 					r_bord = size_Threads * (i + 1);
 				}
 				else {
@@ -52,14 +57,16 @@ int main()
 					n_v2.push_back(v2[j]);
 				}
 				th.push_back(std::thread(sum_vec, n_v1, n_v2));
-
-				for (auto& it : th) {
-					it.join();
-				}
-				auto stop = std::chrono::high_resolution_clock::now();
-				std::chrono::duration<double, std::milli> time = stop - start;
-				std::cout << "\t" << time.count() << "ms";
 			}
+
+			for (auto& it : th) {
+				it.join();
+			}
+
+			auto stop = std::chrono::high_resolution_clock::now();
+
+			std::chrono::duration<double, std::milli> time = stop - start;
+			std::cout << "\t" << time.count() << "ms";
 		}
 		std::cout << std::endl;
 	}
